@@ -1,0 +1,36 @@
+# Java
+target/
+build/
+*.class
+*.jar
+*.war
+*.ear
+qodana.yaml
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.settings/
+.project
+.classpath
+
+# Secrets
+.env
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Frontend
+node_modules/
+dist/
+.env.local
+.env.development
+.env.production
+coverage/
+.cache/

@@ -1,0 +1,75 @@
+spring:
+  cloud:
+    gateway:
+      rate-limiter:
+        default-replenish-rate: 10
+        default-burst-capacity: 20
+      server:
+        webflux:
+          routes:
+            - id: payment-service
+              uri: lb://PAYMENT-SERVICE
+              predicates:
+                - Path=/payment-api/**
+              filters:
+                - StripPrefix=1
+                - name: Recaptcha
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    rate-limiter: "#{@redisRateLimiter}"
+            - id: auth-service
+              uri: lb://AUTH-SERVICE
+              predicates:
+                - Path=/auth-api/**
+              filters:
+                - StripPrefix=1
+                - name: Recaptcha
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    rate-limiter: "#{@redisRateLimiter}"
+
+            - id: booking-service
+              uri: lb://BOOKING-SERVICE
+              predicates:
+                - Path=/booking-api/**
+              filters:
+                - StripPrefix=1
+                - name: Recaptcha
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    rate-limiter: "#{@redisRateLimiter}"
+
+            - id: user-service
+              uri: lb://USER-SERVICE
+              predicates:
+                - Path=/user-api/**
+              filters:
+                - StripPrefix=1
+                - name: Recaptcha
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    rate-limiter: "#{@redisRateLimiter}"
+
+            - id: notification-service
+              uri: lb://NOTIFICATION-SERVICE
+              predicates:
+                - Path=/notification-api/**
+              filters:
+                - StripPrefix=1
+                - name: Recaptcha
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    rate-limiter: "#{@redisRateLimiter}"
+recaptcha:
+  secret: ${CAPTCHA_SECRET:}
+  url: ${CAPTCHA_URL:https://www.google.com/recaptcha/api/siteverify}
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
