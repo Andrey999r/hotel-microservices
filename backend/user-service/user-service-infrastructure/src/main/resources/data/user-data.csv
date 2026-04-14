@@ -1,0 +1,3 @@
+id,login,password,picture_path,email,email_subscription_status,creation_date
+c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33,adminadmin,$2a$12$Oflx.BSJHJPd9YRFhjDaz.EnWitR1hEn4pIQAxEDK31zBt8I0SWP2,http://localhost:9000/users/default-avatar.png,admin@example.com,false,2025-01-01 00:00:00
+d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44,useruser,$2a$12$wOKLHlPXzJoKYz9F3iDHOeGAVli1FoxDUBioXHFGIam1z5lu07iO.,http://localhost:9000/users/default-avatar.png,user@example.com,false,2025-01-01 00:00:00

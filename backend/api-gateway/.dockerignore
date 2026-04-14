@@ -23,9 +23,4 @@ out/
 *.log
 
 # Ignore local wrapper files (if you don't need them in the container)
-.mvn/
-mvnw
-mvnw.cmd
 .gradle/
-gradlew
-gradlew.bat

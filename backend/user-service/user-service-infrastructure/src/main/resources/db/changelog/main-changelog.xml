@@ -7,5 +7,5 @@
     <changeSet id="0" author="Andrey999r">
 
     </changeSet>
-    <include file="v1/accumulate-changelog.xml" relativeToChangelogFile="true"/>
+    <include file="v1/v1-accumulate-changelog.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -5,10 +5,10 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
-    <changeSet id="1775751277797-1" author="flow">
+    <changeSet id="1776162691766-1" author="Andrey999r">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="users"/>
+                <tableExists tableName="roles"/>
             </not>
         </preConditions>
         <createTable tableName="roles">
@@ -20,7 +20,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet id="1775751277797-2" author="flow">
+    <changeSet id="1776162691766-2" author="Andrey999r">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_roles"/>
@@ -35,7 +35,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet id="1775751277797-3" author="flow">
+    <changeSet id="1776162691766-3" author="Andrey999r">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="users"/>
@@ -65,24 +65,42 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet id="1775751277797-4" author="flow">
+    <changeSet id="1776162691766-4" author="Andrey999r">
         <addUniqueConstraint columnNames="role_name" constraintName="uc_roles_role_name" tableName="roles"/>
     </changeSet>
-    <changeSet id="1775751277797-5" author="flow">
+    <changeSet id="1776162691766-5" author="Andrey999r">
         <addUniqueConstraint columnNames="email" constraintName="uc_users_email" tableName="users"/>
     </changeSet>
-    <changeSet id="1775751277797-6" author="flow">
+    <changeSet id="1776162691766-6" author="Andrey999r">
         <addUniqueConstraint columnNames="login" constraintName="uc_users_login" tableName="users"/>
     </changeSet>
-    <changeSet id="1775751277797-7" author="flow">
+    <changeSet id="1776162691766-7" author="Andrey999r">
         <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user_roles"
                                  constraintName="fk_userol_on_role_entity" referencedColumnNames="id"
                                  referencedTableName="roles"/>
     </changeSet>
-    <changeSet id="1775751277797-8" author="flow">
+    <changeSet id="1776162691766-8" author="Andrey999r">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_roles"
                                  constraintName="fk_userol_on_user_entity" referencedColumnNames="id"
                                  referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1776167209379-1" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <tableIsEmpty tableName="roles"/>
+        </preConditions>
+        <loadData tableName="roles" file="data/role-data.csv"/>
+    </changeSet>
+    <changeSet id="1776168481594-1" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <tableIsEmpty tableName="users"/>
+        </preConditions>
+        <loadData tableName="users" file="data/user-data.csv"/>
+    </changeSet>
+    <changeSet id="1776168522238-1" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <tableIsEmpty tableName="user_roles"/>
+        </preConditions>
+        <loadData tableName="user_roles" file="data/user-roles-data.csv"/>
     </changeSet>
 
 </databaseChangeLog>

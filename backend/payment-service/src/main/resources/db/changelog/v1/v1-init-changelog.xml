@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1776088422344-1" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="payer"/>
+            </not>
+        </preConditions>
+        <createTable tableName="payer">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_payer"/>
+            </column>
+            <column name="user_login" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1776088422344-2" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="payment"/>
+            </not>
+        </preConditions>
+        <createTable tableName="payment">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_payment"/>
+            </column>
+            <column name="payer_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reservation_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hotel_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="room_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider_session_id" type="VARCHAR(255)"/>
+            <column name="payment_url" type="VARCHAR(255)"/>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="paid_at" type="DATETIME"/>
+            <column name="cancelled_at" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1776088422344-3" author="Andrey999r">
+        <addUniqueConstraint columnNames="user_login" constraintName="uc_payer_user_login" tableName="payer"/>
+    </changeSet>
+    <changeSet id="1776088422344-4" author="Andrey999r">
+        <addUniqueConstraint columnNames="provider_session_id" constraintName="uc_payment_provider_session"
+                             tableName="payment"/>
+    </changeSet>
+    <changeSet id="1776088422344-5" author="Andrey999r">
+        <addForeignKeyConstraint baseColumnNames="payer_id" baseTableName="payment" constraintName="FK_PAYMENT_ON_PAYER"
+                                 referencedColumnNames="id" referencedTableName="payer"/>
+    </changeSet>
+
+</databaseChangeLog>

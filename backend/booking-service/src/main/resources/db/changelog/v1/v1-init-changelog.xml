@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1776087667476-1" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="hotel"/>
+            </not>
+        </preConditions>
+        <createTable tableName="hotel">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_hotel"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="address" type="VARCHAR(255)"/>
+            <column name="main_photo" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1776087667476-2" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="hotel_photos"/>
+            </not>
+        </preConditions>
+        <createTable tableName="hotel_photos">
+            <column name="hotel_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="photo_url" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1776087667476-3" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="hotel_rating"/>
+            </not>
+        </preConditions>
+        <createTable tableName="hotel_rating">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_hotel_rating"/>
+            </column>
+            <column name="hotel_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_login" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rating" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment" type="TEXT"/>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1776087667476-4" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="reservation"/>
+            </not>
+        </preConditions>
+        <createTable tableName="reservation">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_reservation"/>
+            </column>
+            <column name="user_login" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="room_id" type="BIGINT"/>
+            <column name="start_date_of_reservation" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date_of_reservation" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status_of_reservation" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_url" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1776087667476-5" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="room"/>
+            </not>
+        </preConditions>
+        <createTable tableName="room">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_room"/>
+            </column>
+            <column name="type_of_the_room" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="photo" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_guests" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hotel_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1776087667476-6" author="Andrey999r">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="room_photos"/>
+            </not>
+        </preConditions>
+        <createTable tableName="room_photos">
+            <column name="room_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="photo_url" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1776087667476-7" author="Andrey999r">
+        <addUniqueConstraint columnNames="hotel_id, user_login" constraintName="uc_9e5ee6c17d727992f3530d11a"
+                             tableName="hotel_rating"/>
+    </changeSet>
+    <changeSet id="1776087667476-8" author="Andrey999r">
+        <addUniqueConstraint columnNames="name" constraintName="uc_hotel_name" tableName="hotel"/>
+    </changeSet>
+    <changeSet id="1776087667476-9" author="Andrey999r">
+        <addForeignKeyConstraint baseColumnNames="hotel_id" baseTableName="hotel_rating"
+                                 constraintName="FK_HOTEL_RATING_ON_HOTEL" referencedColumnNames="id"
+                                 referencedTableName="hotel"/>
+    </changeSet>
+    <changeSet id="1776087667476-10" author="Andrey999r">
+        <addForeignKeyConstraint baseColumnNames="room_id" baseTableName="reservation"
+                                 constraintName="FK_RESERVATION_ON_ROOM" referencedColumnNames="id"
+                                 referencedTableName="room"/>
+    </changeSet>
+    <changeSet id="1776087667476-11" author="Andrey999r">
+        <addForeignKeyConstraint baseColumnNames="hotel_id" baseTableName="room" constraintName="FK_ROOM_ON_HOTEL"
+                                 referencedColumnNames="id" referencedTableName="hotel"/>
+    </changeSet>
+    <changeSet id="1776087667476-12" author="Andrey999r">
+        <addForeignKeyConstraint baseColumnNames="hotel_id" baseTableName="hotel_photos"
+                                 constraintName="fk_hotel_photos_on_hotel_entity" referencedColumnNames="id"
+                                 referencedTableName="hotel"/>
+    </changeSet>
+    <changeSet id="1776087667476-13" author="Andrey999r">
+        <addForeignKeyConstraint baseColumnNames="room_id" baseTableName="room_photos"
+                                 constraintName="fk_room_photos_on_room_entity" referencedColumnNames="id"
+                                 referencedTableName="room"/>
+    </changeSet>
+
+</databaseChangeLog>

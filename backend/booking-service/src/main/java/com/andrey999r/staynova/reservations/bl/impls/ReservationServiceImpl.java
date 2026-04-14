@@ -14,7 +14,6 @@ import com.andrey999r.staynova.general.kafka.notification.NotificationPublisher;
 import com.andrey999r.staynova.general.kafka.payment.PaymentEventPublisher;
 import com.andrey999r.staynova.general.kafka.payment.dto.CancelPaymentKafkaDto;
 import com.andrey999r.staynova.general.kafka.payment.dto.PaymentRequestKafkaDto;
-import com.andrey999r.staynova.general.security.SecurityUtils;
 import com.andrey999r.staynova.reservations.api.dto.ReservationDto;
 import com.andrey999r.staynova.reservations.api.dto.ReservationFilterDto;
 import com.andrey999r.staynova.reservations.bl.ReservationService;
@@ -23,6 +22,7 @@ import com.andrey999r.staynova.reservations.dal.ReservationStatus;
 import com.andrey999r.staynova.reservations.dal.entities.ReservationEntity;
 import com.andrey999r.staynova.rooms.bl.RoomService;
 import com.andrey999r.staynova.rooms.dal.entities.RoomEntity;
+import com.andrey999r.staynova.securitystarter.services.ContextService;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
@@ -42,13 +42,13 @@ public class ReservationServiceImpl implements ReservationService {
   private final RoomService roomService;
   private final NotificationPublisher notificationProducer;
   private final PaymentEventPublisher paymentRequestProducer;
-  private final SecurityUtils securityUtils;
+  private final ContextService contextService;
 
   @Override
   public ReservationEntity getReservationById(Long id) {
     log.info("Getting reservation by id={}", id);
-    List<String> roles = securityUtils.getRoles();
-    String userLogin = securityUtils.getUserLogin();
+    List<String> roles = contextService.getUserRoleNames();
+    String userLogin = contextService.getUserLogin();
     ReservationEntity found =
         reservationRepository
             .findById(id)
@@ -71,8 +71,8 @@ public class ReservationServiceImpl implements ReservationService {
 
   @Override
   public List<ReservationEntity> getReservations(ReservationFilterDto filter) {
-    String userLogin = securityUtils.getUserLogin();
-    List<String> roles = securityUtils.getRoles();
+    String userLogin = contextService.getUserLogin();
+    List<String> roles = contextService.getUserRoleNames();
     log.info(
         "Getting reservations for user={}, isAdmin={}",
         userLogin,
@@ -94,7 +94,7 @@ public class ReservationServiceImpl implements ReservationService {
   @Override
   @Transactional
   public ReservationEntity bookReservation(ReservationDto reservationToBook) {
-    String userLogin = securityUtils.getUserLogin();
+    String userLogin = contextService.getUserLogin();
     log.info(
         "Booking reservation: user={}, roomId={}, from={} to={}",
         userLogin,
@@ -168,8 +168,8 @@ public class ReservationServiceImpl implements ReservationService {
   @Override
   @Transactional
   public void cancelReservation(Long id) {
-    String userLogin = securityUtils.getUserLogin();
-    List<String> roles = securityUtils.getRoles();
+    String userLogin = contextService.getUserLogin();
+    List<String> roles = contextService.getUserRoleNames();
     log.info("Cancelling reservation id={} by user={}", id, userLogin);
     ReservationEntity toDelete =
         reservationRepository

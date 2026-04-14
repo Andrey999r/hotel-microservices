@@ -332,8 +332,6 @@ services:
       MINIO_PASSWORD: ${MINIO_PASSWORD}
       MINIO_BUCKET: ${USERS_BUCKET}
       ADMIN_SECRET: ${ADMIN_SECRET}
-      ADMIN_ROLE: ${ADMIN_ROLE}
-      USER_ROLE: ${USER_ROLE}
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
       postgres:
