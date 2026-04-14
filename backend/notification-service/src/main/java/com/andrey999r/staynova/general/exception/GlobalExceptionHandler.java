@@ -1,0 +1,28 @@
+package com.andrey999r.staynova.general.exception;
+
+import java.time.LocalDateTime;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@ControllerAdvice
+@Slf4j
+public class GlobalExceptionHandler {
+
+  @ExceptionHandler(BaseNotificationException.class)
+  public ResponseEntity<ExceptionDto> handleBaseNotificationException(BaseNotificationException e) {
+    log.warn("Notification exception [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
+    var body =
+        new ExceptionDto(e.getStatus().getReasonPhrase(), e.getMessage(), LocalDateTime.now());
+    return ResponseEntity.status(e.getStatus()).body(body);
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ExceptionDto> handleGenericException(Exception e) {
+    log.error("Unexpected error: {}", e.getMessage(), e);
+    var body = new ExceptionDto("Internal Server Error", e.getMessage(), LocalDateTime.now());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+  }
+}
