@@ -25,7 +25,7 @@ COPY user-service/user-service-infrastructure user-service-infrastructure/
 RUN mvn dependency:go-offline -B -q
 RUN mvn clean package -DskipTests -q
 
-FROM eclipse-temurin:25-jdk-alpine
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /opt/app
 COPY --from=builder /opt/app/user-service-infrastructure/target/user-service.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

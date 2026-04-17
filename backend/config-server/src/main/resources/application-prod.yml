@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    config:
+      server:
+        native:
+          searchLocations: file:///config/{application}/{profile}
+eureka:
+  client:
+    service-url:
+      defaultZone: ${SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}

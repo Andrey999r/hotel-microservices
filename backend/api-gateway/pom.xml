@@ -10,7 +10,6 @@
     </parent>
     <groupId>com.andrey999r.staynova</groupId>
     <artifactId>api-gateway</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>api-gateway</name>
     <description>api-gateway</description>
     <url/>
@@ -27,9 +26,8 @@
         <url/>
     </scm>
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
         <spring-cloud.version>2025.1.0</spring-cloud.version>
-        <spring-ai.version>2.0.0-M4</spring-ai.version>
     </properties>
     <dependencies>
         <dependency>
@@ -120,17 +118,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.springframework.ai</groupId>
-                <artifactId>spring-ai-bom</artifactId>
-                <version>${spring-ai.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
+        <finalName>api-gateway</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -5,9 +5,6 @@ networks:
     driver: bridge
 
 services:
-
-  # ==================== DATA ===================
-
   postgres:
     image: postgres:18.3-bookworm
     container_name: postgres
@@ -126,8 +123,6 @@ services:
     networks:
       - backend
 
-  # ==================== METRICS ====================
-
   prometheus:
     image: prom/prometheus:v3
     container_name: prometheus
@@ -136,7 +131,7 @@ services:
         limits:
           memory: 512M
     volumes:
-      - ./backend/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./backend/config/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
     networks:
@@ -160,24 +155,30 @@ services:
       - prometheus
     networks:
       - backend
-
-  # ==================== MESSAGING ====================
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   kafka:
     image: apache/kafka:4.1.2
     container_name: broker
+    restart: on-failure:5
     deploy:
       resources:
         limits:
           memory: 1GB
-    restart: on-failure:5
+    ports:
+      - "9093:9093"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT_INTERNAL://0.0.0.0:29092,PLAINTEXT_C://0.0.0.0:9093,CONTROLLER://0.0.0.0:9094
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_INTERNAL://broker:29092,PLAINTEXT_C://broker:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT_C:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9093,CONTROLLER://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker:29092,EXTERNAL://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:9094
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -185,6 +186,12 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 29092 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     volumes:
       - kafka-data:/var/lib/kafka/data
     networks:
@@ -196,7 +203,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./backend/monitoring/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./backend/config/monitoring/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
     environment:
       LS_JAVA_OPTS: "-Xms256m -Xmx512m"
       XPACK_MONITORING_ENABLED: "false"
@@ -209,6 +216,12 @@ services:
         condition: service_healthy
     networks:
       - backend
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9600 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.3.2
@@ -225,10 +238,16 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+      logstash:
+        condition: service_healthy
     networks:
       - backend
-
-  # ==================== SERVICES ====================
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
 
   eureka:
     build: ./backend/service-observer
@@ -242,6 +261,38 @@ services:
       - "8084:8084"
     environment:
       SPRING_APPLICATION_NAME: eureka
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8084/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - backend
+  config-server:
+    build: ./backend/config-server
+    container_name: config-server
+    restart: on-failure:5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./backend/config/cloud:/config
+    environment:
+      SPRING_PROFILES_ACTIVE: standalone, native
+      SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_SERVICEURL}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8888/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      eureka:
+        condition: service_healthy
     networks:
       - backend
 
@@ -256,7 +307,6 @@ services:
     ports:
       - "8089:8089"
     environment:
-      SPRING_APPLICATION_NAME: api-gateway
       SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_SERVICEURL}
       SPRING_DATA_REDIS_HOST: ${REDIS_HOST}
       SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
@@ -264,14 +314,24 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BROKER}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: ${ACTIVE_PROFILE}
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8089/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
+      config-server:
+        condition: service_healthy
       eureka:
-        condition: service_started
+        condition: service_healthy
       redis:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     networks:
       - backend
       - local-kafka
@@ -285,7 +345,6 @@ services:
         limits:
           memory: 512M
     environment:
-      SPRING_APPLICATION_NAME: auth-service
       SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_SERVICEURL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
@@ -293,19 +352,18 @@ services:
       SPRING_DATA_REDIS_HOST: ${REDIS_HOST}
       SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
       SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: ${ACTIVE_PROFILE}
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
-      eureka:
-        condition: service_started
-      kafka:
-        condition: service_started
-      redis:
+      api-gateway:
         condition: service_healthy
-      user-service:
-        condition: service_started
     networks:
       - backend
-      - local-kafka
 
   user-service:
     build:
@@ -318,7 +376,6 @@ services:
         limits:
           memory: 1GB
     environment:
-      SPRING_APPLICATION_NAME: user-service
       SPRING_DATASOURCE_URL: ${DATASOURCE_URL}/${USER_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
@@ -332,17 +389,17 @@ services:
       MINIO_PASSWORD: ${MINIO_PASSWORD}
       MINIO_BUCKET: ${USERS_BUCKET}
       ADMIN_SECRET: ${ADMIN_SECRET}
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_ACTIVE_PROFILE: ${ACTIVE_PROFILE}
+      SPRING_CLOUD_CONFIG_URI: ${CONFIG_SERVER}
+      SPRING_CLOUD_CONFIG_PROFILE: ${ACTIVE_PROFILE}
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8090/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
-      postgres:
-        condition: service_healthy
-      eureka:
-        condition: service_started
-      kafka:
-        condition: service_started
-      redis:
-        condition: service_healthy
-      minio:
+      api-gateway:
         condition: service_healthy
     networks:
       - backend
@@ -359,7 +416,6 @@ services:
         limits:
           memory: 512M
     environment:
-      SPRING_APPLICATION_NAME: booking-service
       SPRING_DATASOURCE_URL: ${DATASOURCE_URL}/${BOOKING_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
@@ -378,17 +434,17 @@ services:
       SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
       ADMIN_ROLE: ${ADMIN_ROLE}
       USER_ROLE: ${USER_ROLE}
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: ${ACTIVE_PROFILE}
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
-      redis:
+      api-gateway:
         condition: service_healthy
-      postgres:
-        condition: service_healthy
-      eureka:
-        condition: service_started
-      kafka:
-        condition: service_started
-      minio:
+      user-service:
         condition: service_healthy
     networks:
       - backend
@@ -405,22 +461,25 @@ services:
         limits:
           memory: 512M
     environment:
-      SPRING_APPLICATION_NAME: payment-service
       SPRING_DATASOURCE_URL: ${DATASOURCE_URL}/${PAYMENT_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_SERVICEURL}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BROKER}
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: ${ACTIVE_PROFILE}
     ports:
       - "8085:8085"
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8085/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
-      postgres:
+      api-gateway:
         condition: service_healthy
-      eureka:
-        condition: service_started
-      kafka:
-        condition: service_started
+      user-service:
+        condition: service_healthy
     networks:
       - backend
       - local-kafka
@@ -436,7 +495,6 @@ services:
         limits:
           memory: 512M
     environment:
-      SPRING_APPLICATION_NAME: notification-service
       SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_SERVICEURL}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BROKER}
       SPRING_DATASOURCE_URL: ${DATASOURCE_URL}/${NOTIFICATION_DB}
@@ -444,14 +502,22 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       MAIL_HOST: ${MAIL_HOST}
       MAIL_PORT: ${MAIL_PORT}
-      SPRING_PROFILES_ACTIVE: docker
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      SPRING_PROFILES_ACTIVE: ${ACTIVE_PROFILE}
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8082/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
-      postgres:
+      api-gateway:
         condition: service_healthy
-      eureka:
-        condition: service_started
-      kafka:
-        condition: service_started
+      booking-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
     networks:
       - backend
       - local-kafka
@@ -467,7 +533,16 @@ services:
     ports:
       - "5173:5173"
     depends_on:
-      - api-gateway
+      api-gateway:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      booking-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
     networks:
       - backend
 

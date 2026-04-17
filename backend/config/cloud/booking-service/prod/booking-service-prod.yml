@@ -1,0 +1,45 @@
+spring:
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST}
+      port: ${SPRING_DATA_REDIS_PORT}
+      password: ${SPRING_DATA_REDIS_PASSWORD}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+
+minio:
+  url: ${MINIO_URL}
+  access-key: ${MINIO_USER}
+  secret-key: ${MINIO_PASSWORD}
+  hotels-bucket: ${HOTELS_BUCKET}
+  public-url: ${MINIO_PUBLIC_URL}
+  rooms-bucket: ${ROOMS_BUCKET}
+
+springdoc:
+  api-docs:
+    enabled: false
+staynova:
+  filters:
+    role-header: true
+roles:
+  admin-role: ${ADMIN_ROLE}
+  user-role: ${USER_ROLE}

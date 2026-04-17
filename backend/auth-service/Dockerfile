@@ -1,19 +1,14 @@
-FROM gradle:8.13-jdk21 AS build
+FROM maven:3.9.14-eclipse-temurin-25-alpine AS build
 WORKDIR /app
 
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle settings.gradle ./
-
-RUN chmod +x gradlew
-RUN ./gradlew build -x test --refresh-dependencies || true
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
 COPY src src
-RUN ./gradlew build -x test
+RUN mvn package -DskipTests -B
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
-
-COPY --from=build /app/build/libs/*.jar app.jar
-ENTRYPOINT ["java","-jar","app.jar"]
+COPY --from=build /app/target/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]

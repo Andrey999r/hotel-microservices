@@ -1,72 +1,19 @@
+server:
+  port: 8090
 spring:
+  application:
+    name: user-service
+  config:
+    import: 'optional:configserver:'
   liquibase:
-    change-log: db/changelog/main-changelog.xml
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/user_db}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    change-log: classpath:db/changelog/main-changelog.xml
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: true
-  kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9093}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-  data:
-    redis:
-      host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
-      password: ${SPRING_DATA_REDIS_PASSWORD:}
-  application:
-    name: user-service
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8084/eureka/}
-
-admin:
-  secret: ${ADMIN_SECRET:123}
-
-server:
-  port: 8090
-
-minio:
-  url: ${MINIO_URL:http://localhost:9000}
-  access-key: ${MINIO_USER:minioadmin}
-  secret-key: ${MINIO_PASSWORD:minioadmin123}
-  bucket: ${USERS_BUCKET:users}
-  public-url: ${MINIO_PUBLIC_URL:http://localhost:9000}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  prometheus:
-    metrics:
-      export:
-        enabled: true
-
-springdoc:
-  api-docs:
-    enabled: true
-    path: /v3/api-docs
-
-app:
-  swagger:
-    local-url: ${SWAGGER_LOCAL_URL:http://localhost:8089/user-api}
-
-role-names:
-  admin-role-name: ROLE_ADMIN
-  user-role-name: ROLE_USER
-
 notification:
   messages:
     message: ${NOTIFICATION_MSG_REGISTRATION:Добро пожаловать! Вы успешно зарегистрировались.}
-staynova:
-  filters:
-    role-header: true
-
+role-names:
+  admin-role-name: ROLE_ADMIN
+  user-role-name: ROLE_USER

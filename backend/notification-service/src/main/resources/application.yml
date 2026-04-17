@@ -1,36 +1,12 @@
 spring:
   application:
     name: notification-service
-  mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
-  kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9093}
-    consumer:
-      auto-offset-reset: latest
-      enable-auto-commit: false
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-    producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/notification_db}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
   jpa:
     hibernate:
       ddl-auto: validate
+    show-sql: true
   liquibase:
     change-log: db/changelog/main-changelog.xml
-
 management:
   endpoints:
     web:
@@ -40,20 +16,6 @@ management:
     metrics:
       export:
         enabled: true
-
-springdoc:
-  api-docs:
-    enabled: true
-    path: /v3/api-docs
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8084/eureka/}
-
 server:
   port: 8082
 
-app:
-  swagger:
-    local-url: ${SWAGGER_LOCAL_URL:http://localhost:8089/notification-api}

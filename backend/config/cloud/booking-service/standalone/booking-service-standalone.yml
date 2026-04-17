@@ -1,0 +1,52 @@
+spring:
+  elasticsearch:
+    uris: http://localhost:9200
+  datasource:
+    url: jdbc:h2:mem:mydb
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+  security:
+    enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: sldgfhergu
+  kafka:
+    bootstrap-servers: localhost:9093
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+eureka:
+  client:
+    enabled: false
+
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin123
+  hotels-bucket: hotels
+  public-url: http://localhost:9000
+  rooms-bucket: rooms
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+staynova:
+  filters:
+    role-header: false
+app:
+  swagger:
+    local-url: http://localhost:8089/booking-api
+
+roles:
+  admin-role: ROLE_ADMIN
+  user-role: ROLE_USER

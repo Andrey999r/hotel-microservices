@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST}
+      port: ${SPRING_DATA_REDIS_PORT}
+      password: ${SPRING_DATA_REDIS_PASSWORD}
+  cloud:
+    config:
+      uri: http://config-server:8888
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+
+admin:
+  secret: ${ADMIN_SECRET}
+
+minio:
+  url: ${MINIO_URL}
+  access-key: ${MINIO_USER}
+  secret-key: ${MINIO_PASSWORD}
+  bucket: ${USERS_BUCKET}
+  public-url: ${MINIO_PUBLIC_URL}
+staynova:
+  filters:
+    role-header: true
+springdoc:
+  api-docs:
+    enabled: false

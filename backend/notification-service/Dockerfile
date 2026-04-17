@@ -21,7 +21,7 @@ RUN mvn dependency:go-offline -B -q
 COPY notification-service/src ./src
 RUN mvn clean package -DskipTests -q
 
-FROM eclipse-temurin:25-jdk-alpine
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /opt/app
 COPY --from=builder /opt/app/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

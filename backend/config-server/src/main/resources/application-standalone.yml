@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    config:
+      server:
+        native:
+          searchLocations: file:///${user.dir}/../config/cloud/{application}/{profile}
+
+eureka:
+  client:
+    enabled: false
