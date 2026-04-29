@@ -1,4 +1,17 @@
 spring:
+  config:
+    import: 'optional:configserver:'
+  kafka:
+    consumer:
+      auto-offset-reset: latest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
   application:
     name: notification-service
   jpa:
@@ -16,6 +29,9 @@ management:
     metrics:
       export:
         enabled: true
+  health:
+    mail:
+      enabled: false
 server:
   port: 8082
 

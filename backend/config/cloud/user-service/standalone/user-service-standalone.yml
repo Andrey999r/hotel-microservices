@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:mydb
+    url: jdbc:h2:mem:user_db
     username: sa
     password: password
     driverClassName: org.h2.Driver
@@ -39,4 +39,4 @@ staynova:
     role-header: false
 app:
   swagger:
-    local-url: http://localhost:8089/user-api
+    local-url: http://localhost:8090/user-api

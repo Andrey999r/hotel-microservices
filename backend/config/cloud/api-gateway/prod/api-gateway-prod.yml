@@ -24,7 +24,7 @@ spring:
                 - StripPrefix=1
                 - name: CircuitBreaker
                   args:
-                    name: apiGatewayCB
+                    name: authServiceCB
                     fallbackUri: forward:/fallback/auth-service
                 - name: Recaptcha
                 - name: RequestRateLimiter
@@ -40,9 +40,8 @@ spring:
                 - StripPrefix=1
                 - name: CircuitBreaker
                   args:
-                    name: apiGatewayCB
+                    name: userServiceCB
                     fallbackUri: forward:/fallback/user-service
-                - name: Recaptcha
                 - name: RequestRateLimiter
                   args:
                     key-resolver: "#{@ipKeyResolver}"
@@ -56,9 +55,8 @@ spring:
                 - StripPrefix=1
                 - name: CircuitBreaker
                   args:
-                    name: apiGatewayCB
+                    name: bookingServiceCB
                     fallbackUri: forward:/fallback/booking-service
-                - name: Recaptcha
                 - name: RequestRateLimiter
                   args:
                     key-resolver: "#{@ipKeyResolver}"
@@ -72,9 +70,8 @@ spring:
                 - StripPrefix=1
                 - name: CircuitBreaker
                   args:
-                    name: apiGatewayCB
+                    name: paymentServiceCB
                     fallbackUri: forward:/fallback/payment-service
-                - name: Recaptcha
                 - name: RequestRateLimiter
                   args:
                     key-resolver: "#{@ipKeyResolver}"
@@ -88,9 +85,8 @@ spring:
                 - StripPrefix=1
                 - name: CircuitBreaker
                   args:
-                    name: apiGatewayCB
+                    name: notificationServiceCB
                     fallbackUri: forward:/fallback/notification-service
-                - name: Recaptcha
                 - name: RequestRateLimiter
                   args:
                     key-resolver: "#{@ipKeyResolver}"
@@ -105,6 +101,7 @@ eureka:
 recaptcha:
   secret: ${CAPTCHA_SECRET}
   url: ${CAPTCHA_URL}
+  score-threshold: 0.5
 
 springdoc:
   api-docs:
@@ -142,14 +139,25 @@ security:
   jwt:
     expiration: ${JWT_EXPIRATION}
     secret: ${JWT_SECRET}
-  cloud:
-    config:
-      uri: http://localhost:8888
 resilience4j:
   circuitbreaker:
-    instances:
-      apiGatewayCB:
+    configs:
+      default:
         slidingWindowSize: 10
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
+    instances:
+      authServiceCB:
+        baseConfig: default
+      userServiceCB:
+        baseConfig: default
+      bookingServiceCB:
+        baseConfig: default
+      paymentServiceCB:
+        baseConfig: default
+      notificationServiceCB:
+        baseConfig: default
+staynova:
+  filters:
+    role-header: true

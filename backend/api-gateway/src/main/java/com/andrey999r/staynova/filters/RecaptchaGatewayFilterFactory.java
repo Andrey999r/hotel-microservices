@@ -9,8 +9,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
 public class RecaptchaGatewayFilterFactory
     extends AbstractGatewayFilterFactory<RecaptchaGatewayFilterFactory.Config> {
@@ -51,9 +53,20 @@ public class RecaptchaGatewayFilterFactory
               verified -> {
                 if (verified) {
                   return chain.filter(exchange);
-                } else {
-                  return Mono.error(new RuntimeException("Recaptcha verification failed"));
                 }
+                log.warn("Recaptcha verification failed");
+                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                return exchange
+                    .getResponse()
+                    .writeWith(
+                        Mono.just(
+                            exchange
+                                .getResponse()
+                                .bufferFactory()
+                                .wrap(
+                                    "{\"error\":\"Recaptcha verification failed\"}"
+                                        .getBytes())));
               });
     };
   }
@@ -68,7 +81,12 @@ public class RecaptchaGatewayFilterFactory
         .bodyToMono(RecaptchaResponse.class)
         .map(
             response ->
-                response.success() && response.score() >= recaptchaProperties.getScoreThreshold());
+                response.success() && response.score() >= recaptchaProperties.getScoreThreshold())
+        .onErrorResume(
+            ex -> {
+              log.error("Recaptcha verification request failed: {}", ex.getMessage());
+              return Mono.just(false);
+            });
   }
 
   private MultiValueMap<String, String> buildFormBody(String secret, String token) {

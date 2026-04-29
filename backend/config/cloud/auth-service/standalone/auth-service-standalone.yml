@@ -4,8 +4,6 @@ spring:
       host: localhost
       port: 6379
       password: sldgfhergu
-  security:
-    enabled: false
 
 jwt:
   expiration: 3h
@@ -28,4 +26,4 @@ staynova:
     role-header: false
 app:
   swagger:
-    local-url: http://localhost:8089/auth-api
+    local-url: http://localhost:8081/auth-api

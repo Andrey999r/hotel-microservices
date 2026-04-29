@@ -2,12 +2,10 @@ spring:
   elasticsearch:
     uris: http://localhost:9200
   datasource:
-    url: jdbc:h2:mem:mydb
+    url: jdbc:h2:mem:booking_db
     username: sa
     password: password
     driverClassName: org.h2.Driver
-  security:
-    enabled: false
   data:
     redis:
       host: localhost
@@ -15,14 +13,6 @@ spring:
       password: sldgfhergu
   kafka:
     bootstrap-servers: localhost:9093
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 eureka:
   client:
@@ -45,7 +35,7 @@ staynova:
     role-header: false
 app:
   swagger:
-    local-url: http://localhost:8089/booking-api
+    local-url: http://localhost:8083/booking-api
 
 roles:
   admin-role: ROLE_ADMIN

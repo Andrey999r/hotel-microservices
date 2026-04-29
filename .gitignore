@@ -14,7 +14,7 @@ qodana.yaml
 .settings/
 .project
 .classpath
-
+CLAUDE.md
 # Secrets
 .env
 

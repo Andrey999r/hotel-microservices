@@ -1,37 +1,23 @@
 spring:
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username:
-    password:
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
+    test-connection: false
   kafka:
     bootstrap-servers: localhost:9093
-    consumer:
-      auto-offset-reset: latest
-      enable-auto-commit: false
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-    producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
   datasource:
-    url: jdbc:postgresql://localhost:5432/notification_db
-    username: postgres
-    password: postgres
+    url: jdbc:h2:mem:notification_db
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
   jpa:
-    hibernate:
-      ddl-auto: validate
-  liquibase:
-    change-log: classpath:db/changelog/main-changelog.xml
+    database-platform: org.hibernate.dialect.H2Dialect
 
 eureka:
   client:
     enabled: false
+
+staynova:
+  filters:
+    role-header: false
 
 springdoc:
   api-docs:
@@ -40,4 +26,4 @@ springdoc:
 
 app:
   swagger:
-    local-url: http://localhost:8089/notification-api
+    local-url: http://localhost:8082/notification-api

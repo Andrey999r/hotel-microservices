@@ -1,13 +1,11 @@
 package com.andrey999r.staynova.securitystarter.config;
 
 import com.andrey999r.staynova.securitystarter.filter.RoleHeaderFilter;
-import com.andrey999r.staynova.securitystarter.properties.*;
-import com.andrey999r.staynova.securitystarter.properties.FilterProperties;
 import com.andrey999r.staynova.securitystarter.services.ContextService;
 import com.andrey999r.staynova.securitystarter.services.impl.ContextServiceImpl;
+import java.util.Optional;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.*;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,10 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@AutoConfiguration
-@EnableConfigurationProperties({
-  FilterProperties.class,
-})
+@AutoConfiguration(
+    beforeName = "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration")
 public class SecurityAutoConfiguration {
 
   @Bean
@@ -43,10 +39,9 @@ public class SecurityAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(RoleHeaderFilter.class)
     @ConditionalOnProperty(
-        prefix = "staynova.filters.role-header",
-        name = "enabled",
-        havingValue = "true",
-        matchIfMissing = true)
+        prefix = "staynova.filters",
+        name = "role-header",
+        havingValue = "true")
     public RoleHeaderFilter roleHeaderFilter() {
       return new RoleHeaderFilter();
     }
@@ -54,11 +49,12 @@ public class SecurityAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(SecurityFilterChain.class)
     public SecurityFilterChain servletSecurityFilterChain(
-        HttpSecurity http, RoleHeaderFilter roleHeaderFilter) throws Exception {
+        HttpSecurity http, Optional<RoleHeaderFilter> roleHeaderFilter) throws Exception {
       http.csrf(AbstractHttpConfigurer::disable)
           .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-          .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-          .addFilterBefore(roleHeaderFilter, UsernamePasswordAuthenticationFilter.class);
+          .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+      roleHeaderFilter.ifPresent(
+          filter -> http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class));
       return http.build();
     }
   }

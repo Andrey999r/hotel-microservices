@@ -47,7 +47,8 @@ public class SecurityConfiguration {
                               HttpHeaders.ACCEPT,
                               "X-Requested-With",
                               "X-User-Login",
-                              "X-User-Roles"));
+                              "X-User-Roles",
+                              "X-Recaptcha-Token"));
                       config.setExposedHeaders(List.of(HttpHeaders.AUTHORIZATION));
                       config.setAllowCredentials(true);
                       config.setMaxAge(3600L);

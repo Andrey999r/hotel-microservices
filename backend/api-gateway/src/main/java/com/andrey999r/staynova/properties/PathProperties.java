@@ -12,6 +12,6 @@ import org.springframework.stereotype.Component;
 @Setter
 public class PathProperties {
 
-  private List<String> authenticatedPaths;
-  private List<String> permitAllPaths;
+  private List<String> authenticatedPaths = List.of();
+  private List<String> permitAllPaths = List.of();
 }

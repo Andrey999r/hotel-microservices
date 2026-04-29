@@ -102,11 +102,23 @@ springdoc:
         url: /v3/api-docs/payment-service
   api-docs:
     enabled: true
-  cloud:
-    config:
-      uri: http://localhost:8888
 security:
-  enabled: false
+  paths:
+    authenticated-paths:
+      - /auth-api/auth/logout
+    permit-all-paths:
+      - /auth-api/**
+      - /swagger-ui.html
+      - /swagger-ui/**
+      - /webjars/**
+      - /favicon.ico
+      - /v3/api-docs
+      - /v3/api-docs/**
+      - /actuator/**
+      - /booking-api/room/all
+      - /booking-api/room/{roomId}
+      - /booking-api/room/{roomId}/{photoId}
+      - /booking-api/hotels/**
   cors:
     allowed-origins:
       - http://localhost:5173

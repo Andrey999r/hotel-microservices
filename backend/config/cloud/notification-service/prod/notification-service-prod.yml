@@ -7,33 +7,21 @@ spring:
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
+    test-connection: false
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
-    consumer:
-      auto-offset-reset: latest
-      enable-auto-commit: false
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-    producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: validate
-  liquibase:
-    change-log: classpath:db/changelog/main-changelog.xml
 
 eureka:
   client:
     service-url:
       defaultZone: ${SPRING_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
-
+app:
+  swagger:
+    local-url: http://notification-service:8082/notification-api
 springdoc:
   api-docs:
     enabled: false

@@ -37,3 +37,6 @@ staynova:
 springdoc:
   api-docs:
     enabled: false
+app:
+  swagger:
+    local-url: http://user-service:8090/user-api

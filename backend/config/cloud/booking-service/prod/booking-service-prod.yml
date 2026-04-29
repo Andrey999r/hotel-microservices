@@ -12,14 +12,6 @@ spring:
       password: ${SPRING_DATA_REDIS_PASSWORD}
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 eureka:
   client:
@@ -33,6 +25,10 @@ minio:
   hotels-bucket: ${HOTELS_BUCKET}
   public-url: ${MINIO_PUBLIC_URL}
   rooms-bucket: ${ROOMS_BUCKET}
+
+app:
+  swagger:
+    local-url: http://booking-service:8083/booking-api
 
 springdoc:
   api-docs:

@@ -23,3 +23,6 @@ staynova:
 springdoc:
   api-docs:
     enabled: false
+app:
+  swagger:
+    local-url: http://auth-service:8081/auth-api

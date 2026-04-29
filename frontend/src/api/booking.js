@@ -30,7 +30,6 @@ api.interceptors.response.use(
 )
 
 export const bookingApi = {
-    // ── Rooms ──────────────────────────────────────────────────────────────
     getAllRooms(params = {}) {
         return api.get('/rooms', { params })
     },
@@ -44,7 +43,6 @@ export const bookingApi = {
         return api.get('/rooms/popular', { params: { pageSize, pageNumber } })
     },
 
-    // ── Admin: rooms ────────────────────────────────────────────────────────
     createRoom(data) {
         return api.post('/admin/rooms', data)
     },
@@ -72,17 +70,13 @@ export const bookingApi = {
         return api.delete(`/admin/rooms/${roomId}/photos/${photoId}`)
     },
 
-    // ── Reservations ────────────────────────────────────────────────────────
     getReservations(params = {}) {
         return api.get('/reservations', { params })
     },
     getReservationById(id) {
         return api.get(`/reservations/${id}`)
     },
-    /**
-     * Создаёт бронирование со статусом PENDING и инициирует оплату.
-     * Возвращает ReservationDto со статусом PENDING и paymentUrl.
-     */
+
     bookReservation(data) {
         return api.post('/reservations', data)
     },
@@ -90,7 +84,6 @@ export const bookingApi = {
         return api.delete(`/reservations/${id}`)
     },
 
-    // ── Availability ────────────────────────────────────────────────────────
     checkAvailability(roomId) {
         return api.get(`/availability/rooms/${roomId}`)
     },
@@ -101,7 +94,6 @@ export const bookingApi = {
         return api.get(`/availability/reservations/notAvailableDates/${roomId}`)
     },
 
-    // ── Home ─────────────────────────────────────────────────────────────────
     getHome() {
         return api.get('/home')
     },
